@@ -211,7 +211,12 @@ EvolutionResult ZswapEvolution::run(const GenerationCallback& on_generation) {
         result.best_fitness_per_generation.push_back(best.fitness);
 
         if (on_generation) {
-            on_generation(generation, best.config, best.fitness);
+            std::vector<std::pair<hnswlib::ZswapConfig, float>> population_snapshot;
+            population_snapshot.reserve(population.size());
+            for (const auto& individual : population) {
+                population_snapshot.emplace_back(individual.config, individual.fitness);
+            }
+            on_generation(generation, best.config, best.fitness, population_snapshot);
         }
 
         if (generation == config_.generations - 1) {
