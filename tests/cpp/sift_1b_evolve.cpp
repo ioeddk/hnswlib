@@ -421,16 +421,16 @@ void sift_test1B(int subset_size_millions) {
 
     // Everything prepared, now begin the evolution algorithm to select ZSWAP parameters. 
     hnswlib::EvolutionConfig evo_config;
-    evo_config.population_size = 20;
-    evo_config.generations = 10;
-    evo_config.elite_count = 2;
-    evo_config.tournament_size = 3;
-    evo_config.crossover_rate = 0.8f;
-    evo_config.gene_swap_probability = 0.5f;
+    evo_config.population_size = 14;
+    evo_config.generations = 450;
+    evo_config.elite_count = 3;
+    evo_config.tournament_size = 5;
+    evo_config.crossover_rate = 0.5f;
+    evo_config.gene_swap_probability = 0.3f;
 
     // config mutation rates
     evo_config.mutation_rates.zpool = 0.3f;
-    evo_config.mutation_rates.max_pool_percent = 0.3f;
+    evo_config.mutation_rates.max_pool_percent = 0.2f;
     evo_config.mutation_rates.compressor = 0.3f;
     evo_config.mutation_rates.shrinker_enabled = 0.2f;
 
