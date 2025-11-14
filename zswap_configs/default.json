@@ -1,0 +1,6 @@
+{
+    "max_pool_percent": 20,
+    "compressor": "lzo",
+    "zpool": "zbud",
+    "shrinker_enabled": true
+}

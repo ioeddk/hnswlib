@@ -204,6 +204,43 @@ test_approx(
     return 1.0f * correct / total;
 }
 
+// Drive the ANNS search with various values of ef
+static void
+test_vs_recall(
+    unsigned char *massQ,
+    size_t vecsize,
+    size_t qsize,
+    HierarchicalNSW<int> &appr_alg,
+    size_t vecdim,
+    vector<std::priority_queue<std::pair<int, labeltype>>> &answers,
+    size_t k) {
+    vector<size_t> efs;  // = { 10,10,10,10,10 };
+    for (int i = k; i < 30; i++) {
+        efs.push_back(i);
+    }
+    for (int i = 30; i < 100; i += 10) {
+        efs.push_back(i);
+    }
+    for (int i = 100; i < 500; i += 40) {
+        efs.push_back(i);
+    }
+    for (size_t ef : efs) {
+        appr_alg.setEf(ef);
+        StopW stopw = StopW();
+
+        float recall = test_approx(massQ, vecsize, qsize, appr_alg, vecdim, answers, k);
+        float time_us_per_query = stopw.getElapsedTimeMicro() / qsize;
+
+        cout << ef << "\t" << recall << "\t" << time_us_per_query << " us\n";
+        if (recall > 1.0) {
+            cout << recall << "\t" << time_us_per_query << " us\n";
+            break;
+        }
+    }
+}
+
+
+
 /**
  * Benchmark the of running a complete query. 
  * @param massQ The query data.
@@ -418,6 +455,14 @@ void sift_test1B(int subset_size_millions) {
     cout << "Parsing gt:\n";
     get_gt(massQA, massQ, mass, vecsize, qsize, l2space, vecdim, answers, k);
     cout << "Loaded gt\n";
+
+    bool no_evolution = true;
+    if (no_evolution) {
+        for (int i = 0; i < 1; i++)
+            test_vs_recall(massQ, vecsize, qsize, *appr_alg, vecdim, answers, k);
+        cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";
+        exit(0);
+    }
 
     // Everything prepared, now begin the evolution algorithm to select ZSWAP parameters. 
     hnswlib::EvolutionConfig evo_config;
