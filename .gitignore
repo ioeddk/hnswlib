@@ -11,3 +11,6 @@ var/
 .vs/
 **.DS_Store
 *.pyc
+bigann/
+downloads/
+dbllm_env/
