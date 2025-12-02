@@ -103,4 +103,9 @@ if(HNSWLIB_EXAMPLES)
     # add_executable(main tests/cpp/main.cpp tests/cpp/sift_1b.cpp)
     add_executable(main tests/cpp/main.cpp tests/cpp/sift_1b_evolve.cpp tests/cpp/evolution.cpp)
     target_link_libraries(main hnswlib)
+
+    # baseline run
+    add_executable(baseline tests/cpp/baseline.cpp tests/cpp/sift_1b.cpp)
+    target_link_libraries(baseline hnswlib)
+
 endif()

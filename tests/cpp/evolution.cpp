@@ -235,7 +235,9 @@ EvolutionResult ZswapEvolution::run(const GenerationCallback& on_generation) {
             const Individual& parent1 = tournamentSelect(population);
             const Individual& parent2 = tournamentSelect(population);
 
-            auto [child_config1, child_config2] = crossover(parent1.config, parent2.config);
+            // ablation: without crossover
+            // auto [child_config1, child_config2] = crossover(parent1.config, parent2.config);
+            auto [child_config1, child_config2] = std::make_pair(parent1.config, parent2.config);
 
             child_config1 = mutate(child_config1);
             next_population.push_back(evaluate(child_config1));

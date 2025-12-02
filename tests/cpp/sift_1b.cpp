@@ -240,9 +240,9 @@ inline bool exists_test(const std::string &name) {
 }
 
 
-void sift_test1B() {
+void sift_test1B_eval() {
     // int subset_size_milllions = 200; // Very wierd, it fails when subset_size_milllions is 40
-    int subset_size_milllions = 50;
+    int subset_size_milllions = 20;
     int efConstruction = 40;
     int M = 16;
 
