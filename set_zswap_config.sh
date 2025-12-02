@@ -9,6 +9,7 @@ VALID_ZPOOL=(zbud z3fold zsmalloc)
 VALID_MAX_POOL_PERCENT=(10 20 30 40 50 60)
 VALID_COMPRESSOR=(lzo deflate 842 lz4 lz4hc zstd)
 VALID_SHRINKER=(Y N)
+VALID_ENABLED=(Y N)
 
 usage() {
     cat <<EOF
@@ -19,6 +20,7 @@ Options:
   --max-pool-percent <10|20|30|40|50|60>
   --compressor <lzo|deflate|842|lz4|lz4hc|zstd>
   --shrinker-enabled <Y|N|yes|no>
+  --enabled <Y|N|yes|no>
   --help
 
 Only the parameters you specify are updated. Run as root to allow writes to
@@ -67,6 +69,7 @@ ZPOOL=""
 MAX_POOL_PERCENT=""
 COMPRESSOR=""
 SHRINKER=""
+ENABLED=""
 
 if [[ $# -eq 0 ]]; then
     usage
@@ -107,6 +110,17 @@ while [[ $# -gt 0 ]]; do
             SHRINKER="$value"
             shift 2
             ;;
+        --enabled)
+            [[ $# -ge 2 ]] || error "--enabled requires a value"
+            value=$(printf '%s' "$2" | tr '[:lower:]' '[:upper:]')
+            case "$value" in
+                YES) value="Y" ;;
+                NO) value="N" ;;
+            esac
+            contains "$value" "${VALID_ENABLED[@]}" || error "Invalid enabled flag '$2'"
+            ENABLED="$value"
+            shift 2
+            ;;
         --help|-h)
             usage
             exit 0
@@ -117,7 +131,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [[ -z "$ZPOOL$MAX_POOL_PERCENT$COMPRESSOR$SHRINKER" ]]; then
+if [[ -z "$ZPOOL$MAX_POOL_PERCENT$COMPRESSOR$SHRINKER$ENABLED" ]]; then
     error "No parameters provided to update."
 fi
 
@@ -127,3 +141,4 @@ require_root
 [[ -n "$COMPRESSOR" ]] && write_sysfs "compressor" "$COMPRESSOR"
 [[ -n "$ZPOOL" ]] && write_sysfs "zpool" "$ZPOOL"
 [[ -n "$SHRINKER" ]] && write_sysfs "shrinker_enabled" "$SHRINKER"
+[[ -n "$ENABLED" ]] && write_sysfs "enabled" "$ENABLED"
