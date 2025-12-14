@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set the config to start
-./set_zswap_config.sh --enabled Y --zpool zsmalloc --max-pool-percent 10 --compressor 842 --shrinker-enabled Y
+./set_zswap_config.sh --enabled Y --zpool zbud --max-pool-percent 10 --compressor lz4hc --shrinker-enabled Y
 
 cd build
 

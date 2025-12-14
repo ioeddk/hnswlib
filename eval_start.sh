@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set the config to start
-./set_zswap_config.sh --enabled Y --zpool z3fold --max-pool-percent 40 --compressor lz4hc --shrinker-enabled N
+./set_zswap_config.sh --enabled Y --zpool zbud --max-pool-percent 10 --compressor lzo --shrinker-enabled N
 
 cd build
 
