@@ -119,12 +119,34 @@ inline ShrinkerEnabled stringToShrinkerEnabled(const std::string& str) {
 }
 // <<< ShrinkerEnabled <<<
 
+// >>> Enabled >>>
+enum class Enabled {
+    YES = 0,
+    NO
+};
+
+inline std::string enabledToString(Enabled type) {
+    switch (type) {
+        case Enabled::YES: return "Y";
+        case Enabled::NO: return "N";
+    }
+    throw std::runtime_error("Invalid enabled: " + std::to_string(static_cast<int>(type)));
+}
+
+inline Enabled stringToEnabled(const std::string& str) {
+    if (str == "Y") return Enabled::YES;
+    if (str == "N") return Enabled::NO;
+    throw std::runtime_error("Invalid enabled: " + str);
+}
+// <<< Enabled <<<
+
 // A struct holding Zswap configuration parameters
 struct ZswapConfig {
     ZpoolType zpool;
     MaxPoolPercent max_pool_percent;
     CompressorType compressor;
     ShrinkerEnabled shrinker_enabled;
+    Enabled enabled;
 };
 
 // Loads Zswap configuration parameters from a file.
@@ -132,7 +154,7 @@ struct ZswapConfig {
 // key=value
 // (e.g., max_pool_percent=30)
 inline ZswapConfig loadZswapConfigFromFile(const std::string& filename) {
-    ZswapConfig config = {ZpoolType::ZBUD, MaxPoolPercent::_20, CompressorType::LZ4, ShrinkerEnabled::YES};
+    ZswapConfig config = {ZpoolType::ZBUD, MaxPoolPercent::_20, CompressorType::LZ4, ShrinkerEnabled::YES, Enabled::YES};
     std::ifstream file(filename);
     if (!file.is_open())
         throw std::runtime_error("Cannot open zswap config file: " + filename);
@@ -146,6 +168,7 @@ inline ZswapConfig loadZswapConfigFromFile(const std::string& filename) {
         else if (key == "zpool") config.zpool = stringToZpoolType(value);
         else if (key == "compressor") config.compressor = stringToCompressorType(value);
         else if (key == "shrinker_enabled") config.shrinker_enabled = stringToShrinkerEnabled(value);
+        else if (key == "enabled") config.enabled = stringToEnabled(value);
         // Add other keys if needed
     }
     file.close();
@@ -174,6 +197,7 @@ inline void applyZswapConfig(const ZswapConfig& config) {
         write_sysfs("/sys/module/zswap/parameters/compressor", compressorTypeToString(config.compressor));
         write_sysfs("/sys/module/zswap/parameters/zpool", zpoolTypeToString(config.zpool));
         write_sysfs("/sys/module/zswap/parameters/shrinker_enabled", shrinkerEnabledToString(config.shrinker_enabled));
+        write_sysfs("/sys/module/zswap/parameters/enabled", enabledToString(config.enabled));
     } catch (const std::exception& e) {
         // On error, throw further
         throw std::runtime_error(std::string("applyZswapConfig failed: ") + e.what());
@@ -194,6 +218,7 @@ inline void saveCurrentZswapConfigToFile(const std::string& filename) {
     config.compressor = stringToCompressorType(read_sysfs("/sys/module/zswap/parameters/compressor"));
     config.zpool = stringToZpoolType(read_sysfs("/sys/module/zswap/parameters/zpool"));
     config.shrinker_enabled = stringToShrinkerEnabled(read_sysfs("/sys/module/zswap/parameters/shrinker_enabled"));
+    config.enabled = stringToEnabled(read_sysfs("/sys/module/zswap/parameters/enabled"));
     // type is not saved, default to CUSTOM
     
     std::ofstream file(filename);
@@ -202,6 +227,7 @@ inline void saveCurrentZswapConfigToFile(const std::string& filename) {
     file << "compressor=" << compressorTypeToString(config.compressor) << "\n";
     file << "zpool=" << zpoolTypeToString(config.zpool) << "\n";
     file << "shrinker_enabled=" << shrinkerEnabledToString(config.shrinker_enabled) << "\n";
+    file << "enabled=" << enabledToString(config.enabled) << "\n";
     file.close();
 }
 

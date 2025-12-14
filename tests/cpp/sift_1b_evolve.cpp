@@ -12,7 +12,51 @@
 
 #include <unordered_set>
 
+// Simple JSON parser for ZswapConfig
+#include <sstream>
+#include <regex>
+
 using namespace std;
+
+// Simple function to parse JSON config file
+hnswlib::ZswapConfig loadZswapConfigFromJson(const std::string& filename) {
+    hnswlib::ZswapConfig config = {hnswlib::ZpoolType::ZBUD, hnswlib::MaxPoolPercent::_20, hnswlib::CompressorType::LZO, hnswlib::ShrinkerEnabled::YES, hnswlib::Enabled::YES};
+
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        throw std::runtime_error("Cannot open zswap config file: " + filename);
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    std::string json_content = buffer.str();
+
+    // Simple regex-based JSON parsing for the specific format
+    std::regex max_pool_regex("\"max_pool_percent\"\\s*:\\s*(\\d+)");
+    std::regex compressor_regex("\"compressor\"\\s*:\\s*\"([^\"]+)\"");
+    std::regex zpool_regex("\"zpool\"\\s*:\\s*\"([^\"]+)\"");
+    std::regex shrinker_regex("\"shrinker_enabled\"\\s*:\\s*(true|false)");
+    std::regex enabled_regex("\"enabled\"\\s*:\\s*(true|false)");
+
+    std::smatch match;
+    if (std::regex_search(json_content, match, max_pool_regex)) {
+        config.max_pool_percent = hnswlib::stringToMaxPoolPercent(match[1].str());
+    }
+    if (std::regex_search(json_content, match, compressor_regex)) {
+        config.compressor = hnswlib::stringToCompressorType(match[1].str());
+    }
+    if (std::regex_search(json_content, match, zpool_regex)) {
+        config.zpool = hnswlib::stringToZpoolType(match[1].str());
+    }
+    if (std::regex_search(json_content, match, shrinker_regex)) {
+        config.shrinker_enabled = (match[1].str() == "true") ? hnswlib::ShrinkerEnabled::YES : hnswlib::ShrinkerEnabled::NO;
+    }
+    if (std::regex_search(json_content, match, enabled_regex)) {
+        config.enabled = (match[1].str() == "true") ? hnswlib::Enabled::YES : hnswlib::Enabled::NO;
+    }
+
+    return config;
+}
 using namespace hnswlib;
 
 class StopW {
@@ -328,12 +372,22 @@ static void writeConfigJsonObject(
     os << inner_indent << "\"max_pool_percent\": " << std::stoi(hnswlib::maxPoolPercentToString(config.max_pool_percent)) << ",\n";
     os << inner_indent << "\"compressor\": \"" << hnswlib::compressorTypeToString(config.compressor) << "\",\n";
     os << inner_indent << "\"shrinker_enabled\": "
-       << (config.shrinker_enabled == hnswlib::ShrinkerEnabled::YES ? "true" : "false") << "\n";
+       << (config.shrinker_enabled == hnswlib::ShrinkerEnabled::YES ? "true" : "false") << ",\n";
+    os << inner_indent << "\"enabled\": "
+       << (config.enabled == hnswlib::Enabled::YES ? "true" : "false") << "\n";
     os << indent << "}";
 }
 
 
-void sift_test1B(int subset_size_millions) {
+void sift_test1B(int subset_size_millions, int max_pool_percent, const std::string& output_path) {
+    // Ensure output directory exists
+    std::string mkdir_cmd = "mkdir -p '" + output_path + "'";
+    int result = system(mkdir_cmd.c_str());
+    if (result != 0) {
+        std::cerr << "Failed to create output directory '" << output_path << "'" << std::endl;
+        return;
+    }
+
     if (subset_size_millions != 20 && subset_size_millions != 50) {
         cerr << "subset_size_millions must be 20 or 50\n";
         exit(1);
@@ -456,7 +510,7 @@ void sift_test1B(int subset_size_millions) {
     get_gt(massQA, massQ, mass, vecsize, qsize, l2space, vecdim, answers, k);
     cout << "Loaded gt\n";
 
-    bool no_evolution = true;
+    bool no_evolution = false;
     if (no_evolution) {
         for (int i = 0; i < 1; i++)
             test_vs_recall(massQ, vecsize, qsize, *appr_alg, vecdim, answers, k);
@@ -464,20 +518,47 @@ void sift_test1B(int subset_size_millions) {
         exit(0);
     }
 
-    // Everything prepared, now begin the evolution algorithm to select ZSWAP parameters. 
+    // Everything prepared, now begin the evolution algorithm to select ZSWAP parameters.
     hnswlib::EvolutionConfig evo_config;
-    evo_config.population_size = 14;
-    evo_config.generations = 450;
-    evo_config.elite_count = 3;
-    evo_config.tournament_size = 5;
-    evo_config.crossover_rate = 0.5f;
+    evo_config.population_size = 18;
+    evo_config.generations = 400;
+    evo_config.elite_count = 4;  // 10% of population - preserves best solutions
+    evo_config.tournament_size = 4;  // Good selection pressure for pop size 50
+    // evo_config.crossover_rate = 0.5f;
     evo_config.gene_swap_probability = 0.3f;
 
-    // config mutation rates
-    evo_config.mutation_rates.zpool = 0.3f;
-    evo_config.mutation_rates.max_pool_percent = 0.2f;
-    evo_config.mutation_rates.compressor = 0.3f;
-    evo_config.mutation_rates.shrinker_enabled = 0.2f;
+    // config mutation rates (max_pool_percent is fixed, so no mutation)
+    evo_config.mutation_rates.zpool = 0.2f;
+    evo_config.mutation_rates.max_pool_percent = 0.0f;  // Don't evolve max_pool_percent
+    evo_config.mutation_rates.compressor = 0.2f;
+    evo_config.mutation_rates.shrinker_enabled = 0.1f;
+    evo_config.mutation_rates.enabled = 0.0f;  // Don't evolve enabled, keep it always YES
+
+    // Load default configuration from JSON
+    hnswlib::ZswapConfig default_config = loadZswapConfigFromJson("/home/ubuntu/hnswlib/zswap_configs/default.json");
+
+    // Convert command-line max_pool_percent to enum
+    hnswlib::MaxPoolPercent fixed_max_pool;
+    switch (max_pool_percent) {
+        case 10: fixed_max_pool = hnswlib::MaxPoolPercent::_10; break;
+        case 20: fixed_max_pool = hnswlib::MaxPoolPercent::_20; break;
+        case 30: fixed_max_pool = hnswlib::MaxPoolPercent::_30; break;
+        case 40: fixed_max_pool = hnswlib::MaxPoolPercent::_40; break;
+        case 50: fixed_max_pool = hnswlib::MaxPoolPercent::_50; break;
+        case 60: fixed_max_pool = hnswlib::MaxPoolPercent::_60; break;
+        default: fixed_max_pool = hnswlib::MaxPoolPercent::_20; break; // fallback
+    }
+
+    // Create initial population with default config but fixed max_pool_percent
+    std::vector<hnswlib::ZswapConfig> initial_population;
+    initial_population.reserve(evo_config.population_size);
+
+    for (int i = 0; i < evo_config.population_size; ++i) {
+        hnswlib::ZswapConfig config = default_config;
+        config.max_pool_percent = fixed_max_pool;
+        config.enabled = hnswlib::Enabled::YES;  // Always enabled
+        initial_population.push_back(config);
+    }
 
     auto fitness_fn = [&](const hnswlib::ZswapConfig &candidate) -> float {
         try {
@@ -495,9 +576,9 @@ void sift_test1B(int subset_size_millions) {
         return time_us_per_query;
     };
 
-    hnswlib::ZswapEvolution evolution(evo_config, fitness_fn);
+    hnswlib::ZswapEvolution evolution(evo_config, fitness_fn, initial_population);
 
-    auto on_generation = [&](
+    auto on_generation = [&, output_path](
         int generation,
         const hnswlib::ZswapConfig &best_config,
         float best_fitness,
@@ -508,9 +589,10 @@ void sift_test1B(int subset_size_millions) {
              << ", zpool=" << hnswlib::zpoolTypeToString(best_config.zpool)
              << ", max_pool_percent=" << hnswlib::maxPoolPercentToString(best_config.max_pool_percent)
              << ", shrinker=" << hnswlib::shrinkerEnabledToString(best_config.shrinker_enabled)
+             << ", enabled=" << hnswlib::enabledToString(best_config.enabled)
              << "\n";
 
-        const std::string filename = "best_candidate_gen_" + std::to_string(generation) + ".json";
+        std::string filename = output_path + "/best_candidate_gen_" + std::to_string(generation) + ".json";
         std::ofstream output(filename);
         if (!output.is_open()) {
             cerr << "Failed to open " << filename << " for writing\n";
@@ -559,6 +641,7 @@ void sift_test1B(int subset_size_millions) {
          << ", zpool=" << hnswlib::zpoolTypeToString(evolution_result.best_config.zpool)
          << ", max_pool_percent=" << hnswlib::maxPoolPercentToString(evolution_result.best_config.max_pool_percent)
          << ", shrinker=" << hnswlib::shrinkerEnabledToString(evolution_result.best_config.shrinker_enabled)
+         << ", enabled=" << hnswlib::enabledToString(evolution_result.best_config.enabled)
          << "\n";
 
     cout << "Actual memory usage: " << getCurrentRSS() / 1000000 << " Mb \n";

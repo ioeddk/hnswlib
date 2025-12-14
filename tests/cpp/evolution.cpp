@@ -72,19 +72,62 @@ const std::array<ShrinkerEnabled, 2> kShrinkerOptions = {
 }  // namespace
 
 /**
- * @brief Constructor for ZswapEvolution. Validate the config values by enforcing positivity and clamping by max possible value. 
+ * @brief Constructor for ZswapEvolution. Validate the config values by enforcing positivity and clamping by max possible value.
  * @param config The configuration for the evolution.
  * @param fitness The fitness function to use.
  */
 ZswapEvolution::ZswapEvolution(const EvolutionConfig& config, FitnessFunction fitness)
     : config_(config),
       fitness_(std::move(fitness)),
-      rng_(config.random_seed ? config.random_seed : std::random_device{}()) {
+      rng_(config.random_seed ? config.random_seed : std::random_device{}()),
+      initial_population_(),
+      use_initial_population_(false) {
     if (!fitness_) {
         throw std::invalid_argument("ZswapEvolution requires a valid fitness function");
     }
     if (config_.population_size <= 0) {
         throw std::invalid_argument("population_size must be positive");
+    }
+    if (config_.generations <= 0) {
+        throw std::invalid_argument("generations must be positive");
+    }
+    if (config_.tournament_size <= 0) {
+        throw std::invalid_argument("tournament_size must be positive");
+    }
+    if (config_.elite_count < 0) {
+        throw std::invalid_argument("elite_count cannot be negative");
+    }
+
+    config_.elite_count = std::min(config_.elite_count, config_.population_size);
+    config_.tournament_size = std::min(config_.tournament_size, config_.population_size);
+    config_.crossover_rate = clamp01(config_.crossover_rate);
+    config_.gene_swap_probability = clamp01(config_.gene_swap_probability);
+    config_.mutation_rates.zpool = clamp01(config_.mutation_rates.zpool);
+    config_.mutation_rates.max_pool_percent = clamp01(config_.mutation_rates.max_pool_percent);
+    config_.mutation_rates.compressor = clamp01(config_.mutation_rates.compressor);
+    config_.mutation_rates.shrinker_enabled = clamp01(config_.mutation_rates.shrinker_enabled);
+}
+
+/**
+ * @brief Constructor for ZswapEvolution with custom initial population.
+ * @param config The configuration for the evolution.
+ * @param fitness The fitness function to use.
+ * @param initial_population The initial population to start evolution with.
+ */
+ZswapEvolution::ZswapEvolution(const EvolutionConfig& config, FitnessFunction fitness, const std::vector<ZswapConfig>& initial_population)
+    : config_(config),
+      fitness_(std::move(fitness)),
+      rng_(config.random_seed ? config.random_seed : std::random_device{}()),
+      initial_population_(initial_population),
+      use_initial_population_(true) {
+    if (!fitness_) {
+        throw std::invalid_argument("ZswapEvolution requires a valid fitness function");
+    }
+    if (config_.population_size <= 0) {
+        throw std::invalid_argument("population_size must be positive");
+    }
+    if (static_cast<int>(initial_population.size()) != config_.population_size) {
+        throw std::invalid_argument("initial_population size must match population_size");
     }
     if (config_.generations <= 0) {
         throw std::invalid_argument("generations must be positive");
@@ -192,8 +235,17 @@ const ZswapEvolution::Individual& ZswapEvolution::tournamentSelect(const std::ve
 EvolutionResult ZswapEvolution::run(const GenerationCallback& on_generation) {
     std::vector<Individual> population;
     population.reserve(static_cast<std::size_t>(config_.population_size));
-    for (int i = 0; i < config_.population_size; ++i) {
-        population.push_back(randomIndividual());
+
+    if (use_initial_population_) {
+        // Use provided initial population
+        for (const auto& config : initial_population_) {
+            population.push_back(evaluate(config));
+        }
+    } else {
+        // Generate random initial population
+        for (int i = 0; i < config_.population_size; ++i) {
+            population.push_back(randomIndividual());
+        }
     }
 
     EvolutionResult result{};

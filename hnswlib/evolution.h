@@ -17,6 +17,7 @@ struct MutationRates {
     float max_pool_percent = 0.05f;
     float compressor = 0.05f;
     float shrinker_enabled = 0.05f;
+    float enabled = 0.00f;
 };
 
 struct EvolutionConfig {
@@ -47,13 +48,14 @@ using GenerationCallback = std::function<void(
 class ZswapEvolution {
 public:
     ZswapEvolution(const EvolutionConfig& config, FitnessFunction fitness);
+    ZswapEvolution(const EvolutionConfig& config, FitnessFunction fitness, const std::vector<ZswapConfig>& initial_population);
 
     EvolutionResult run(const GenerationCallback& on_generation = nullptr);
 
 private:
     struct Individual {
         hnswlib::ZswapConfig config{};
-        float fitness = std::numeric_limits<float>::infinity();  // The lower the runtime, the better the fitness. 
+        float fitness = std::numeric_limits<float>::infinity();  // The lower the runtime, the better the fitness.
     };
 
     Individual evaluate(const hnswlib::ZswapConfig& config);
@@ -66,6 +68,8 @@ private:
     EvolutionConfig config_;
     FitnessFunction fitness_;
     std::mt19937 rng_;
+    std::vector<ZswapConfig> initial_population_;
+    bool use_initial_population_;
 };
 
 }  // namespace hnswlib
