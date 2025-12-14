@@ -1,0 +1,195 @@
+{
+  "generation": 87,
+  "best": {
+    "fitness": 123.513611,
+    "config": {
+      "zpool": "z3fold",
+      "max_pool_percent": 20,
+      "compressor": "lz4",
+      "shrinker_enabled": false,
+      "enabled": true
+    }
+  },
+  "population": [
+    {
+      "fitness": 123.513611,
+      "config": {
+        "zpool": "z3fold",
+        "max_pool_percent": 20,
+        "compressor": "lz4",
+        "shrinker_enabled": false,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 123.513725,
+      "config": {
+        "zpool": "zsmalloc",
+        "max_pool_percent": 20,
+        "compressor": "lz4",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 123.556236,
+      "config": {
+        "zpool": "zsmalloc",
+        "max_pool_percent": 20,
+        "compressor": "lz4",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 123.680412,
+      "config": {
+        "zpool": "z3fold",
+        "max_pool_percent": 20,
+        "compressor": "lz4",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 126.057838,
+      "config": {
+        "zpool": "zsmalloc",
+        "max_pool_percent": 20,
+        "compressor": "lz4",
+        "shrinker_enabled": false,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 126.504494,
+      "config": {
+        "zpool": "z3fold",
+        "max_pool_percent": 20,
+        "compressor": "lz4",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 126.612999,
+      "config": {
+        "zpool": "z3fold",
+        "max_pool_percent": 20,
+        "compressor": "lz4",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 127.109863,
+      "config": {
+        "zpool": "z3fold",
+        "max_pool_percent": 20,
+        "compressor": "lz4",
+        "shrinker_enabled": false,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 127.203957,
+      "config": {
+        "zpool": "z3fold",
+        "max_pool_percent": 20,
+        "compressor": "lz4",
+        "shrinker_enabled": false,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 127.421097,
+      "config": {
+        "zpool": "z3fold",
+        "max_pool_percent": 20,
+        "compressor": "lz4",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 127.456764,
+      "config": {
+        "zpool": "z3fold",
+        "max_pool_percent": 20,
+        "compressor": "lz4",
+        "shrinker_enabled": false,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 127.599892,
+      "config": {
+        "zpool": "z3fold",
+        "max_pool_percent": 20,
+        "compressor": "lz4",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 127.604324,
+      "config": {
+        "zpool": "zsmalloc",
+        "max_pool_percent": 20,
+        "compressor": "deflate",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 127.612686,
+      "config": {
+        "zpool": "zsmalloc",
+        "max_pool_percent": 20,
+        "compressor": "zstd",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 127.972473,
+      "config": {
+        "zpool": "zsmalloc",
+        "max_pool_percent": 20,
+        "compressor": "lz4",
+        "shrinker_enabled": false,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 128.269165,
+      "config": {
+        "zpool": "zsmalloc",
+        "max_pool_percent": 20,
+        "compressor": "lz4",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 129.834595,
+      "config": {
+        "zpool": "z3fold",
+        "max_pool_percent": 20,
+        "compressor": "lz4",
+        "shrinker_enabled": false,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 140.566299,
+      "config": {
+        "zpool": "zsmalloc",
+        "max_pool_percent": 20,
+        "compressor": "lz4",
+        "shrinker_enabled": false,
+        "enabled": true
+      }
+    }
+  ]
+}

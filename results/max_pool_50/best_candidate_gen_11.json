@@ -1,0 +1,195 @@
+{
+  "generation": 11,
+  "best": {
+    "fitness": 123.386963,
+    "config": {
+      "zpool": "zbud",
+      "max_pool_percent": 50,
+      "compressor": "lzo",
+      "shrinker_enabled": true,
+      "enabled": true
+    }
+  },
+  "population": [
+    {
+      "fitness": 123.386963,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "lzo",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 123.723633,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "842",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 123.784378,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "lzo",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 123.785339,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "zstd",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 124.355652,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "842",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 124.649796,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "lzo",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 124.867210,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "842",
+        "shrinker_enabled": false,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 124.957085,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "lzo",
+        "shrinker_enabled": false,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 125.083214,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "842",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 125.332603,
+      "config": {
+        "zpool": "z3fold",
+        "max_pool_percent": 50,
+        "compressor": "842",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 125.338257,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "842",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 125.482780,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "842",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 125.491112,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "lz4",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 125.577332,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "lzo",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 125.851479,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "lz4",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 126.921097,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "zstd",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 127.229836,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "lzo",
+        "shrinker_enabled": false,
+        "enabled": true
+      }
+    },
+    {
+      "fitness": 129.097382,
+      "config": {
+        "zpool": "zbud",
+        "max_pool_percent": 50,
+        "compressor": "842",
+        "shrinker_enabled": true,
+        "enabled": true
+      }
+    }
+  ]
+}
